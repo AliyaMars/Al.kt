@@ -23,19 +23,15 @@ class MainFrame : JFrame() {
     val XMax: JLabel
     val YMin: JLabel
     val YMax: JLabel
-    val set1: JLabel
     val set2: JLabel
-    val set3: JLabel
+
     val xMin: JSpinner
     val xMax: JSpinner
     val yMin: JSpinner
     val yMax: JSpinner
     val cbPoints: JCheckBox
     val cbGraphic: JCheckBox
-    val cbDerivative: JCheckBox
-    val pointsColorPanel: JPanel
     val polynomColorPanel: JPanel
-    val derivativeColorPanel: JPanel
     val xMinM: SpinnerNumberModel
     val xMaxM: SpinnerNumberModel
     val yMinM: SpinnerNumberModel
@@ -44,29 +40,21 @@ class MainFrame : JFrame() {
     init {
         minimumSize = minDim
         defaultCloseOperation = EXIT_ON_CLOSE
-        xMinM = SpinnerNumberModel(-10.0, -100.0, 10.9, 0.1)
+        xMinM = SpinnerNumberModel(-5.0, -100.0, 4.9, 0.1)
         xMin = JSpinner(xMinM)
-        xMaxM = SpinnerNumberModel(10.0, -10.9, 100.0, 0.1)
+        xMaxM = SpinnerNumberModel(5.0, -4.9, 100.0, 0.1)
         xMax = JSpinner(xMaxM)
-        yMinM = SpinnerNumberModel(-10.0, -100.0, 10.9, 0.1)
+        yMinM = SpinnerNumberModel(-5.0, -100.0, 4.9, 0.1)
         yMin = JSpinner(yMinM)
-        yMaxM = SpinnerNumberModel(10.0, -10.9, 100.0, 0.1)
+        yMaxM = SpinnerNumberModel(5.0, -4.9, 100.0, 0.1)
         yMax = JSpinner(yMaxM)
         cbPoints = JCheckBox()
-
         cbGraphic = JCheckBox()
-        cbDerivative = JCheckBox()
-        pointsColorPanel = JPanel()
-        pointsColorPanel.background = Color.RED
         polynomColorPanel = JPanel()
         polynomColorPanel.background = Color.BLUE
         polynomColorPanel.setSize(1, 1)
-        derivativeColorPanel = JPanel()
-        derivativeColorPanel.background = Color.GREEN
         polynomColorPanel.setSize(1, 1)
-
         controlPanel = JPanel().apply { background = Color.WHITE }
-
 
         val plane = CartesianPlane(
             xMin.value as Double,
@@ -77,12 +65,6 @@ class MainFrame : JFrame() {
 
         val cartesianPainter = CartesianPainter(plane)
 
-        val derivativePainter = FunctionPainter(plane)
-        derivativePainter.funColor = derivativeColorPanel.background
-//        fun f(x:Double):Double {
-//            var a = x
-//            return Math.abs((x*x+1)/(x+1))
-//        }
         val func = FunctionPainter(plane)
         func.function = {x:Double -> Math.abs((x*x+1)/(x+1))}
         func.funColor = polynomColorPanel.background
@@ -91,18 +73,6 @@ class MainFrame : JFrame() {
         mainPanel = GraphicsPanel(painters).apply {
             background = Color.WHITE
         }
-        mainPanel.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent?) {
-                with(plane) {
-                    if (e != null) {
-                        e.apply {
-//                            derivativePainter.function = dx::invoke
-                        }
-                        mainPanel.repaint()
-                    }
-                }
-            }
-        })
 
         cbGraphic.addItemListener(object : ItemListener {
             override fun itemStateChanged(e: ItemEvent?) {
@@ -116,10 +86,11 @@ class MainFrame : JFrame() {
             }
         })
 
+
         polynomColorPanel.addMouseListener(object : MouseAdapter() {
             override fun mouseClicked(e: MouseEvent?) {
                 if (e?.button == 1) {
-                    val color = JColorChooser.showDialog(null, "Выберите цвет точек", polynomColorPanel.background)
+                    val color = JColorChooser.showDialog(null, "Цвет функции", polynomColorPanel.background)
                     polynomColorPanel.background = color
                     func.funColor = color
                     mainPanel.repaint()
@@ -127,20 +98,6 @@ class MainFrame : JFrame() {
 
             }
         })
-
-        derivativeColorPanel.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent?) {
-                if (e?.button == 1) {
-                    val color = JColorChooser.showDialog(null, "Выберите цвет точек", derivativeColorPanel.background)
-                    derivativeColorPanel.background = color
-                    derivativePainter.funColor = color
-                    mainPanel.repaint()
-                }
-
-            }
-        })
-
-
 
         mainPanel.addComponentListener(object : ComponentAdapter() {
             override fun componentResized(e: ComponentEvent?) {
@@ -176,9 +133,8 @@ class MainFrame : JFrame() {
         XMax = JLabel("XMax:")
         YMin = JLabel("YMin:")
         YMax = JLabel("YMax:")
-        set1 = JLabel("Отображать точки")
-        set2 = JLabel("Отображать график функции")
-        set3 = JLabel("Отображать производную")
+        set2 = JLabel("Отображать график явно заданной функции")
+
 
         controlPanel.layout = GroupLayout(controlPanel).apply {
 //            setAutoCreateGaps(true);
@@ -187,7 +143,7 @@ class MainFrame : JFrame() {
             linkSize(XMax, xMax)
             linkSize(YMin, yMin)
             linkSize(YMax, yMax)
-            linkSize(pointsColorPanel, polynomColorPanel, derivativeColorPanel, cbPoints, cbGraphic, cbDerivative)
+            linkSize( polynomColorPanel, cbGraphic, )
 
 
             setHorizontalGroup(
@@ -224,13 +180,13 @@ class MainFrame : JFrame() {
                     )
                     .addGap(50)
                     .addGroup(
-                        createParallelGroup().addComponent(cbPoints).addComponent(cbGraphic).addComponent(cbDerivative)
+                        createParallelGroup().addComponent(cbGraphic)
                     )
-                    .addGroup(createParallelGroup().addComponent(set1).addComponent(set2).addComponent(set3))
+                    .addGroup(createParallelGroup().addComponent(set2))
                     .addGap(10)
                     .addGroup(
-                        createParallelGroup().addComponent(pointsColorPanel).addComponent(polynomColorPanel)
-                            .addComponent(derivativeColorPanel)
+                        createParallelGroup().addComponent(polynomColorPanel)
+
                     )
             )
             setVerticalGroup(
@@ -272,12 +228,6 @@ class MainFrame : JFrame() {
                         )
                 ).addGroup(
                     createSequentialGroup()
-                        .addGroup(
-                            createParallelGroup(GroupLayout.Alignment.CENTER)
-                                .addComponent(cbPoints)
-                                .addComponent(set1)
-                                .addComponent(pointsColorPanel)
-                        )
                         .addGap(2)
                         .addGroup(
                             createParallelGroup(GroupLayout.Alignment.CENTER)
@@ -286,12 +236,7 @@ class MainFrame : JFrame() {
                                 .addComponent(polynomColorPanel)
                         )
                         .addGap(2)
-                        .addGroup(
-                            createParallelGroup(GroupLayout.Alignment.CENTER)
-                                .addComponent(cbDerivative)
-                                .addComponent(set3)
-                                .addComponent(derivativeColorPanel)
-                        )
+
                 )
             )
         }
