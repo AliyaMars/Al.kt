@@ -3,6 +3,7 @@ package ru.aliya.ui
 import ru.aliya.ui.painting.CartesianPainter
 import ru.aliya.ui.painting.CartesianPlane
 import ru.aliya.ui.painting.FunctionPainter
+import ru.aliya.ui.painting.Painter
 import ru.aliya.ui.painting.PointsPainter
 import java.awt.Color
 import java.awt.Dimension
@@ -69,7 +70,7 @@ class MainFrame : JFrame() {
         func.function = {x:Double -> Math.abs((x*x+1)/(x+1))}
         func.funColor = polynomColorPanel.background
 
-        val painters = mutableListOf(cartesianPainter, func)
+        val painters = mutableListOf<Painter>(cartesianPainter)
         mainPanel = GraphicsPanel(painters).apply {
             background = Color.WHITE
         }
